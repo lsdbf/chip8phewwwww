@@ -24,3 +24,4 @@ const static uint8_t KEYMAP[FONT_SIZE/5] = {
         SDLK_f, // E
         SDLK_v  // F
 };
+#pragma once

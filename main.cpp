@@ -17,17 +17,26 @@ int main() {
     return 3;
   }
 
-  SDL_SetRenderDrawColor(render,1,0,0,1);
-  SDL_RenderPresent(render);
-  
-  while (true) {
+  while (true) { //make this into a switch statement
 		SDL_Event e;
+    SDL_SetRenderDrawColor(render,0,0,0,0);
 		if (SDL_PollEvent(&e)) {
 			if (e.type == SDL_QUIT) {
 				break;
 			}
+      if (e.key.keysym.sym == SDLK_d){
+        SDL_SetRenderDrawColor(render, 27,52,127,SDL_ALPHA_OPAQUE); //background
+        SDL_RenderClear(render);
+
+        //SDL_SetRenderDrawColor(render,180,189,25,SDL_ALPHA_OPAQUE); //line color
+        //SDL_RenderDrawLine(render, 0, 60, 60, -60);
+
+        SDL_RenderPresent(render);
+      }
 		}
+    
   }
+  SDL_DestroyRenderer(render);
   SDL_DestroyWindow(screen);
   SDL_Quit();
   return EXIT_SUCCESS;
