@@ -13,9 +13,9 @@ typedef struct{
     uint8_t delay;
     uint8_t sound;
     uint8_t SP;
-    uint8_t registers[16];
+    uint8_t V[16];
     uint16_t stack[16];
-    uint16_t PC[16];
+    uint16_t PC;
     uint16_t opcode;
     uint16_t index[16];
     uint16_t keyboard[16];
@@ -44,7 +44,6 @@ uint16_t FONT[FONT_SIZE] = {
 };
 
 void initialize(){};
-void opcode() {};
 void cycle() {};
-char* load_rom(char* rom) {};
+void load_rom() {};
 #pragma once
