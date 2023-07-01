@@ -20,7 +20,12 @@ void initialize() {
         chip.memory[i] = KEYMAP[i];
     }
 }
-
+/*
+auto* memory    = &(chip.memory);
+auto* opcode    = &(chip.opcode);
+auto* stack     = &(chip.stack);
+auto* PC        = &(chip.PC);
+*/
 void cycle() {
     //fetch
     chip.opcode = chip.memory[chip.PC] << 8 | chip.memory[chip.PC + 1];
@@ -29,7 +34,11 @@ void cycle() {
         case 0x0000:
             switch(chip.opcode & 0x00FF){ //check the last two
                 case 0x00E0: //clear display
-                memset(chip.graphics,0,sizeof(chip.graphics) * (width*height));
+                    memset(chip.graphics,0,sizeof(chip.graphics) * (width*height));
+                break;
+                case 0x00EE:
+                    chip.PC = chip.stack[chip.SP];
+                    --chip.SP;
                 break;
             }
 
