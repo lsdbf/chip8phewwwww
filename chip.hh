@@ -16,9 +16,11 @@ typedef struct{
     uint8_t registers[16];
     uint16_t stack[16];
     uint16_t PC[16];
+    uint16_t opcode;
     uint16_t index[16];
     uint16_t keyboard[16];
     uint32_t graphics[width * height];
+
 
 }Chip8;
 
@@ -40,4 +42,9 @@ uint16_t FONT[FONT_SIZE] = {
 0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
 0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
+
+void initialize(){};
+void opcode() {};
+void cycle() {};
+char* load_rom(char* rom) {};
 #pragma once
