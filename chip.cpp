@@ -41,8 +41,21 @@ void cycle() {
                     --chip.SP;
                 break;
             }
+        case 0x1000:
+            chip.PC = chip.opcode & 0x0FFF;
+            break;
+        case 0x2000:
+            chip.SP = chip.SP++; // Would "++chip.SP" be better?
+            chip.PC = chip.stack[chip.SP];
+            chip.PC = chip.opcode & 0x0FFF;
+            break;
+        case 0x3000:
+            if(chip.V[chip.opcode & 0x0F00] == (chip.opcode & 0x00FF))
+            {
+                chip.PC += 2;
+            }
+        break;
 
-    break;    
     }
     //execute
 }
