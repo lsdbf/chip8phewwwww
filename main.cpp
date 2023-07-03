@@ -1,8 +1,8 @@
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <iostream>
 #include "chip.hh"
 
-int main() {
+int main(int argc, char* args[]) {
   
   SDL_Window *screen = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_CENTERED, 
   SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
