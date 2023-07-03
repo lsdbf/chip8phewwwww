@@ -43,7 +43,7 @@ uint16_t FONT[FONT_SIZE] = {
 0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-void initialize(){};
-void cycle() {};
-void load_rom() {};
+void initialize();
+void cycle();
+void load_rom();
 #pragma once
