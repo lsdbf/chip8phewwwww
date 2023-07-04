@@ -1,5 +1,6 @@
 #include "chip.hh"
 #include "keymap.hh"
+#include <random>
 
 Chip8 chip = {};
 
@@ -54,7 +55,49 @@ void cycle() {
             {
                 chip.PC += 2;
             }
-        break;
+            break;
+        case 0x7000:
+            chip.V[chip.opcode & 0x0F00] += chip.opcode & 0x00FF;
+            break;
+        case 0x8000:
+            switch(chip.opcode & 0x000F)
+                case 0x0:       //8xy0 - LD Vx, Vy
+                    chip.V[chip.opcode & 0x0F00] = chip.V[chip.opcode & 0x00F0];
+                    break;
+                case 0x0001:    //8xy1 - OR Vx, Vy
+                    chip.V[chip.opcode & 0x0F00] |= chip.V[chip.opcode & 0x00F0];
+                    break;
+                case 0x0002:    //8xy2 - AND Vx, Vy
+                    chip.V[chip.opcode & 0x0F00] &= chip.V[chip.opcode & 0x00F0];
+                    break;
+                case 0x0003:    //8xy3 - XOR Vx, Vy
+                    chip.V[chip.opcode & 0x0F00] ^= chip.V[chip.opcode & 0x00F0];
+                    break;
+                case 0x0004:    //8xy4 - ADD Vx, Vy
+                    chip.V[0xF] = chip.V[chip.opcode & 0x0F00] += chip.V[chip.opcode & 0x00F0] > 255 ? 1 : 0;
+                    chip.V[chip.opcode & 0x0F00] += chip.V[chip.opcode & 0x00F0] > 255 ? 1 : 0;
+                    break;
+                case 0x0005:
+                    auto Vy = chip.V[chip.opcode & 0x00F0];
+                    auto Vx = chip.V[chip.opcode & 0x0F00] > Vy ? 1 : 0;
+                    auto VF = chip.V[0xF];
+                    Vx = Vx - Vy;
+                    break;
+                case 0x0006:
+                    chip.V[0xF] = chip.V[chip.opcode & 0x0F00] & 1 ? 1 : 0;
+                    chip.V[chip.opcode & 0x0F00] / 2;
+                    break;
+                case 0x0007:
+                    auto Vx = chip.V[chip.opcode & 0x0F00];
+                    auto Vy = chip.V[chip.opcode & 0x00F0] > Vx ? 1 : 0;
+                    auto VF = chip.V[0xF];
+                    Vx = Vy - Vx;
+                    break;
+                case 0x000E:
+                    chip.V[0xF] = chip.V[chip.opcode & 0x0F00] << 1 ? 1 : 0;
+                    break; //make sure to check this pls
+
+            break;
 
     }
     //execute
