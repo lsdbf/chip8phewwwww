@@ -5,12 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(.)
 
-add_executable(chip8phewwwww
-        chip.hh
-        keymap.hh
-        main.cpp)
-
-add_executable(PROJECT_NAME main.cpp)
+add_executable(chip8phewwwww main.cpp)
 
 # --- SDL2 SETUP ---
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
