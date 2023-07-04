@@ -12,7 +12,7 @@ void initialize() {
         .stack      = {0},
         .PC         = 0x200,
         .opcode     = 0,
-        .index      = {0},
+        .index      = 0,
         .graphics   = {0},
     };
 
