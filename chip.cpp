@@ -108,6 +108,9 @@ void cycle() {
                 case 0xF015:
                     chip.delay = chip.V[chip.opcode & 0x0F00];
                     break;
+                case 0xF018:
+                    chip.sound = chip.opcode & 0x0F00;
+                    break;
             }
     }
     //execute
