@@ -84,6 +84,8 @@ void cycle() {
             chip.PC = chip.V[0] + (chip.opcode & 0x0FFF);
             break;
         case 0xC000:
+            srand(time(NULL));
+            chip.V[chip.opcode & 0x0F00] = (rand() % 0x0100) & (chip.opcode & 0x00FF);
             break;
         case 0xD000:
             break;
