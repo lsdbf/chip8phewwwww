@@ -45,7 +45,7 @@ void cycle() {
             chip.PC = chip.opcode & 0x0FFF;
             break;
         case 0x2000:
-            chip.SP = chip.SP++; // Would "++chip.SP" be better?
+            chip.SP = ++chip.SP;
             chip.PC = chip.stack[chip.SP];
             chip.PC = chip.opcode & 0x0FFF;
             break;
