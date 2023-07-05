@@ -17,7 +17,7 @@ typedef struct{
     uint16_t stack[16];
     uint16_t PC;
     uint16_t opcode;
-    uint16_t index[16];
+    uint16_t index;
     uint16_t keyboard[16];
     uint32_t graphics[width * height];
 

@@ -97,6 +97,28 @@ void cycle() {
                     chip.V[0xF] = chip.V[chip.opcode & 0x0F00] << 1 ? 1 : 0;
                     break; //make sure to check this pls
 
+        break;
+        case 0xD000: //display
+            auto x      = chip.V[0x0F00] % 64;
+            auto y      = chip.V[0x00F0] % 32;
+            auto n      = chip.V[chip.opcode & 0x000F];
+            chip.V[0xF] = 0;
+            for (int i = 0; i <= n; i++){//row
+                auto sprite = chip.memory[chip.index + i];
+                for(int j = 0; j < 8; j++){//column
+                    auto pixel = sprite & (1<<7-j); //sprite pixel
+                    //screen pixel
+                    auto screen_pixel = chip.graphics[(x+j)+(y+i)*width];
+                    if(pixel == 1 && screen_pixel == 1){
+                        screen_pixel=0;chip.V[0xF] = 1;
+                        if(pixel == 1 && screen_pixel == 0){
+                            screen_pixel = true;
+                        }
+                    }
+
+                }
+
+            }
             break;
 
     }
