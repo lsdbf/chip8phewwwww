@@ -16,8 +16,6 @@ int main() {
     std::cout << "ERROR: COULD NOT CREATE RENDERER" << std::endl;
     return 3;
   }
-
-  initialize(); //initialize chip8
   
   while (true) { //make this into a switch statement
 		SDL_Event e;
