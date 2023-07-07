@@ -1,6 +1,8 @@
 #include "chip.hh"
 #include "keymap.hh"
 #include <random>
+#include <fstream>
+#include <vector>
 
 Chip8 chip = {};
 
@@ -114,8 +116,8 @@ void cycle() {
                         if(pixel == 1 && screen_pixel == 0){
                             screen_pixel = true;
                         }
+                        screen_pixel ^= 1;
                     }
-
                 }
 
             }
@@ -125,6 +127,18 @@ void cycle() {
     //execute
 }
 
-void load_rom(){
+void load_rom(char* rom){
+
+    std::FILE *rom_game;
+
+    rom_game = fopen(rom, "rb");
+
+    if (rom_game == NULL){
+        std::cerr << "ROM could not be loaded" << std::endl;
+    }
+
+    fread(&chip.memory[0x200], 1,MAX_MEMORY, rom_game);
+
+    fclose(rom_game);
 
 }
