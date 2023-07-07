@@ -1,6 +1,6 @@
 #include "chip.hh"
 #include "keymap.hh"
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <random>
 #include <fstream>
 #include <vector>
@@ -35,7 +35,7 @@ void cycle() {
     chip.opcode = chip.memory[chip.PC] << 8 | chip.memory[chip.PC + 1];
     //decode
     switch(chip.opcode & 0xF000) { //check first
-        case 0x0000:
+        case 0x0000:{
             switch(chip.opcode & 0x00FF){ //check the last two
                 case 0x00E0: //clear display
                     memset(chip.graphics,0,sizeof(chip.graphics) * (width*height));
@@ -45,6 +45,7 @@ void cycle() {
                     --chip.SP;
                     break;
             }
+        }
         case 0x1000:
             chip.PC = chip.opcode & 0x0FFF;
             break;
@@ -90,8 +91,6 @@ void cycle() {
             srand(time(NULL));
             chip.V[chip.opcode & 0x0F00] = (rand() % 0x0100) & (chip.opcode & 0x00FF);
             break;
-        case 0xD000:
-            break;
         case 0xE000:
             switch(chip.opcode & 0x00FF)
             {
@@ -136,32 +135,37 @@ void cycle() {
                 case 0x0003:    //8xy3 - XOR Vx, Vy
                     chip.V[chip.opcode & 0x0F00] ^= chip.V[chip.opcode & 0x00F0];
                     break;
-                case 0x0004:    //8xy4 - ADD Vx, Vy
+                case 0x0004:{
+                    //8xy4 - ADD Vx, Vy
                     chip.V[0xF] = chip.V[chip.opcode & 0x0F00] += chip.V[chip.opcode & 0x00F0] > 255 ? 1 : 0;
                     chip.V[chip.opcode & 0x0F00] += chip.V[chip.opcode & 0x00F0] > 255 ? 1 : 0;
                     break;
-                case 0x0005:
+                }    
+                case 0x0005:{
                     auto Vy = chip.V[chip.opcode & 0x00F0];
                     auto Vx = chip.V[chip.opcode & 0x0F00] > Vy ? 1 : 0;
                     auto VF = chip.V[0xF];
                     Vx = Vx - Vy;
                     break;
-                case 0x0006:
+                }
+                case 0x0006:{
                     chip.V[0xF] = chip.V[chip.opcode & 0x0F00] & 1 ? 1 : 0;
                     chip.V[chip.opcode & 0x0F00] / 2;
                     break;
-                case 0x0007:
+                }
+                case 0x0007:{
                     auto Vx = chip.V[chip.opcode & 0x0F00];
                     auto Vy = chip.V[chip.opcode & 0x00F0] > Vx ? 1 : 0;
                     auto VF = chip.V[0xF];
                     Vx = Vy - Vx;
                     break;
+                }
                 case 0x000E:
                     chip.V[0xF] = chip.V[chip.opcode & 0x0F00] << 1 ? 1 : 0;
                     break; //make sure to check this pls
 
         break;
-        case 0xD000: //display
+        case 0xD000:{
             auto x      = chip.V[0x0F00] % 64;
             auto y      = chip.V[0x00F0] % 32;
             auto n      = chip.V[chip.opcode & 0x000F];
@@ -183,6 +187,8 @@ void cycle() {
 
             }
             break;
+        } //display
+            
 
     }
     //execute

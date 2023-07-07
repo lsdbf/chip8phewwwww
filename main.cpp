@@ -2,7 +2,7 @@
 #include <iostream>
 #include "chip.hh"
 
-int main(int argc, char* args[]) {
+int main() {
   
   SDL_Window *screen = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_CENTERED, 
   SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
@@ -17,6 +17,8 @@ int main(int argc, char* args[]) {
     return 3;
   }
 
+  initialize(); //initialize chip8
+  
   while (true) { //make this into a switch statement
 		SDL_Event e;
     SDL_SetRenderDrawColor(render,0,0,0,0);
@@ -36,6 +38,7 @@ int main(int argc, char* args[]) {
 		}
     
   }
+  //clean
   SDL_DestroyRenderer(render);
   SDL_DestroyWindow(screen);
   SDL_Quit();
