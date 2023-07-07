@@ -90,8 +90,30 @@ void cycle() {
             srand(time(NULL));
             chip.V[chip.opcode & 0x0F00] = (rand() % 0x0100) & (chip.opcode & 0x00FF);
             break;
-        case 0xD000:
+        case 0xD000: //display
+        {
+            uint8_t x = chip.V[0x0F00] % 64;
+            uint8_t y = chip.V[0x00F0] % 32;
+            uint8_t n = chip.V[chip.opcode & 0x000F];
+            chip.V[0xF] = 0;
+            for (int i = 0; i <= n; i++) {//row
+                auto sprite = chip.memory[chip.index + i];
+                for (int j = 0; j < 8; j++) {//column
+                    auto pixel = sprite & (1 << 7 - j); //sprite pixel
+                    //screen pixel
+                    auto screen_pixel = chip.graphics[(x + j) + (y + i) * width];
+                    if (pixel == 1 && screen_pixel == 1) {
+                        screen_pixel = 0;
+                        chip.V[0xF] = 1;
+                        if (pixel == 1 && screen_pixel == 0) {
+                            screen_pixel = true;
+                        }
+                        screen_pixel ^= 1;
+                    }
+                }
+            }
             break;
+        }
         case 0xE000:
             switch(chip.opcode & 0x00FF)
             {
@@ -140,49 +162,28 @@ void cycle() {
                     chip.V[0xF] = chip.V[chip.opcode & 0x0F00] += chip.V[chip.opcode & 0x00F0] > 255 ? 1 : 0;
                     chip.V[chip.opcode & 0x0F00] += chip.V[chip.opcode & 0x00F0] > 255 ? 1 : 0;
                     break;
-                case 0x0005:
+                case 0x0005: {
                     auto Vy = chip.V[chip.opcode & 0x00F0];
                     auto Vx = chip.V[chip.opcode & 0x0F00] > Vy ? 1 : 0;
                     auto VF = chip.V[0xF];
                     Vx = Vx - Vy;
                     break;
+                }
                 case 0x0006:
                     chip.V[0xF] = chip.V[chip.opcode & 0x0F00] & 1 ? 1 : 0;
                     chip.V[chip.opcode & 0x0F00] / 2;
                     break;
                 case 0x0007:
+                {
                     auto Vx = chip.V[chip.opcode & 0x0F00];
                     auto Vy = chip.V[chip.opcode & 0x00F0] > Vx ? 1 : 0;
                     auto VF = chip.V[0xF];
                     Vx = Vy - Vx;
                     break;
+                }
                 case 0x000E:
                     chip.V[0xF] = chip.V[chip.opcode & 0x0F00] << 1 ? 1 : 0;
                     break; //make sure to check this pls
-
-        break;
-        case 0xD000: //display
-            auto x      = chip.V[0x0F00] % 64;
-            auto y      = chip.V[0x00F0] % 32;
-            auto n      = chip.V[chip.opcode & 0x000F];
-            chip.V[0xF] = 0;
-            for (int i = 0; i <= n; i++){//row
-                auto sprite = chip.memory[chip.index + i];
-                for(int j = 0; j < 8; j++){//column
-                    auto pixel = sprite & (1<<7-j); //sprite pixel
-                    //screen pixel
-                    auto screen_pixel = chip.graphics[(x+j)+(y+i)*width];
-                    if(pixel == 1 && screen_pixel == 1){
-                        screen_pixel=0;chip.V[0xF] = 1;
-                        if(pixel == 1 && screen_pixel == 0){
-                            screen_pixel = true;
-                        }
-                        screen_pixel ^= 1;
-                    }
-                }
-
-            }
-            break;
 
     }
     //execute
