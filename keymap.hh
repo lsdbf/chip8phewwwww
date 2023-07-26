@@ -1,7 +1,7 @@
 #ifndef CHIP8PHEWWWWW_KEYMAP_H
 #define CHIP8PHEWWWWW_KEYMAP_H
 
-#endif //CHIP8PHEWWWWW_KEYMAP_H
+
 
 #include "chip.hh"
 #include <SDL2/SDL.h>
@@ -25,3 +25,5 @@ const static uint8_t KEYMAP[FONT_SIZE/5] = {
         SDLK_v  // F
 };
 #pragma once
+
+#endif //CHIP8PHEWWWWW_KEYMAP_H
