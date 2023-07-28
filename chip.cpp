@@ -34,11 +34,11 @@ void cycle() {
     //fetch
     chip.opcode = chip.memory[chip.PC] << 8 | chip.memory[chip.PC + 1];
     //decode
-    switch(chip.opcode & 0xF000) { //check first
+    switch(chip.opcode & 0xF000){ //check first
         case 0x0000:
             switch(chip.opcode & 0x00FF){ //check the last two
                 case 0x00E0: //clear display
-                    memset(chip.graphics,0,sizeof(chip.graphics) * (width*height));
+                    memset(chip.graphics,0,sizeof(chip.graphics));
                     break;
                 case 0x00EE:
                     chip.PC = chip.stack[chip.SP];
@@ -118,6 +118,8 @@ void cycle() {
             switch(chip.opcode & 0x00FF)
             {
                 case 0xE09E:
+                    if(KEYMAP[chip.V[chip.opcode & 0x0F00]] == 1)
+                        chip.PC += 2;
                     break;
                 case 0xE0A1:
                     break;
@@ -184,7 +186,6 @@ void cycle() {
                 case 0x000E:
                     chip.V[0xF] = chip.V[chip.opcode & 0x0F00] << 1 ? 1 : 0;
                     break; //make sure to check this pls
-
     }
     //execute
 }
