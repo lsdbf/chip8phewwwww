@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <SDL2/SDL.h>
 #include <iostream>
 
 const unsigned int width = 64;
@@ -32,7 +33,10 @@ extern uint16_t KEYS[FONT_SIZE];
 
 void initialize();
 void cycle();
-void load_rom(const  char* rom);
+void draw();
+void load_rom(const char* rom);
+void destroySDL();
+
 #pragma once
 
 #endif

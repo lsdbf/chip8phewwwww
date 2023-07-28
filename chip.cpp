@@ -6,6 +6,15 @@
 #include <vector>
 
 Chip8 chip = {};
+
+SDL_Window *screen = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_CENTERED, 
+  SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+  | SDL_WINDOW_SHOWN);
+
+SDL_Renderer *render = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
+
+SDL_Texture *texture = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,width,height);
+
 uint16_t KEYS[FONT_SIZE] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -40,13 +49,14 @@ void initialize()
         .keyboard = {0},
         .graphics = {0},
     };
-
     // load sprites into memory
     for (unsigned int i = 0.1; i < FONT_SIZE; ++i)
     {
         chip.memory[i] = KEYMAP[i];
     }
 }
+
+
 /*
 auto* memory    = &(chip.memory);
 auto* opcode    = &(chip.opcode);
@@ -65,10 +75,12 @@ void cycle()
         {            // check the last two
         case 0x00E0: // clear display
             memset(chip.graphics, 0, sizeof(chip.graphics));
+            chip.PC += 2;
             break;
         case 0x00EE:
             chip.PC = chip.stack[chip.SP];
             --chip.SP;
+            chip.PC += 2;
             break;
         }
         break;
@@ -100,6 +112,7 @@ void cycle()
         break;
     case 0x6000:
         chip.V[chip.opcode & 0x0F00] = chip.opcode & 0x00FF;
+        chip.PC += 2;
         break;
     case 0x9000:
         if (chip.V[chip.opcode & 0x0F00] != chip.V[chip.opcode & 0x00F0])
@@ -109,6 +122,7 @@ void cycle()
         break;
     case 0xA000:
         chip.index = chip.opcode & 0x0FFF;
+        chip.PC += 2;
         break;
     case 0xB000:
         chip.PC = chip.V[0] + (chip.opcode & 0x0FFF);
@@ -148,57 +162,59 @@ void cycle()
     case 0x7000:
         chip.V[chip.opcode & 0x0F00] += chip.opcode & 0x00FF;
         break;
-    case 0x8000:
+    case 0x8000:{
         switch (chip.opcode & 0x000F)
         case 0x0: // 8xy0 - LD Vx, Vy
             chip.V[chip.opcode & 0x0F00] = chip.V[chip.opcode & 0x00F0];
         break;
-    case 0x0001: // 8xy1 - OR Vx, Vy
-        chip.V[chip.opcode & 0x0F00] |= chip.V[chip.opcode & 0x00F0];
-        break;
-    case 0x0002: // 8xy2 - AND Vx, Vy
-        chip.V[chip.opcode & 0x0F00] &= chip.V[chip.opcode & 0x00F0];
-        break;
-    case 0x0003: // 8xy3 - XOR Vx, Vy
-        chip.V[chip.opcode & 0x0F00] ^= chip.V[chip.opcode & 0x00F0];
-        break;
-    case 0x0004: // 8xy4 - ADD Vx, Vy
-        chip.V[0xF] = (chip.V[chip.opcode & 0x0F00] + chip.V[chip.opcode & 0x00F0]) > 255 ? 1 : 0;
-        chip.V[chip.opcode & 0x0F00] = chip.V[chip.opcode & 0x0F00] + chip.V[chip.opcode & 0x00F0] > 255 ? 1 : 0;
-        break;
-    case 0x0005:
-    {
-        auto Vy = chip.V[chip.opcode & 0x00F0];
-        auto Vx = chip.V[chip.opcode & 0x0F00] > Vy ? 1 : 0;
-        Vx = Vx - Vy;
+        case 0x0001: // 8xy1 - OR Vx, Vy
+            chip.V[chip.opcode & 0x0F00] |= chip.V[chip.opcode & 0x00F0];
+            break;
+        case 0x0002: // 8xy2 - AND Vx, Vy
+            chip.V[chip.opcode & 0x0F00] &= chip.V[chip.opcode & 0x00F0];
+            break;
+        case 0x0003: // 8xy3 - XOR Vx, Vy
+            chip.V[chip.opcode & 0x0F00] ^= chip.V[chip.opcode & 0x00F0];
+            break;
+        case 0x0004: // 8xy4 - ADD Vx, Vy
+            chip.V[0xF] = (chip.V[chip.opcode & 0x0F00] + chip.V[chip.opcode & 0x00F0]) > 255 ? 1 : 0;
+            chip.V[chip.opcode & 0x0F00] = chip.V[chip.opcode & 0x0F00] + chip.V[chip.opcode & 0x00F0] > 255 ? 1 : 0;
+            break;
+        case 0x0005:
+        {
+            auto Vy = chip.V[chip.opcode & 0x00F0];
+            auto Vx = chip.V[chip.opcode & 0x0F00] > Vy ? 1 : 0;
+            Vx = Vx - Vy;
+            break;
+        }
+        case 0x0006:
+        {
+            chip.V[0xF] = chip.V[chip.opcode & 0x0F00] & 1 ? 1 : 0;
+            chip.V[chip.opcode & 0x0F00] / 2u;
+            break;
+        }
+        case 0x0007:
+        {
+            auto Vx = chip.V[chip.opcode & 0x0F00];
+            auto Vy = chip.V[chip.opcode & 0x00F0] > Vx ? 1 : 0;
+            Vx = Vy - Vx;
+            break;
+        }
+        case 0x000E:
+        {
+            chip.V[0xF] = chip.V[chip.opcode & 0x0F00] << 1 ? 1 : 0;
+            break; // make sure to check this pls
+        }
         break;
     }
-    case 0x0006:
-    {
-        chip.V[0xF] = chip.V[chip.opcode & 0x0F00] & 1 ? 1 : 0;
-        chip.V[chip.opcode & 0x0F00] / 2u;
-        break;
-    }
-    case 0x0007:
-    {
-        auto Vx = chip.V[chip.opcode & 0x0F00];
-        auto Vy = chip.V[chip.opcode & 0x00F0] > Vx ? 1 : 0;
-        Vx = Vy - Vx;
-        break;
-    }
-    case 0x000E:
-    {
-        chip.V[0xF] = chip.V[chip.opcode & 0x0F00] << 1 ? 1 : 0;
-        break; // make sure to check this pls
-    }
-    break;
+        
     case 0xD000:
     {
         auto x = chip.V[chip.opcode & 0x0F00] & 0x00FF;
         auto y = chip.V[chip.opcode & 0x00F0] & 0x000F;
-        auto n = chip.V[chip.opcode & 0x000F];
+        auto n = chip.opcode & 0x000F;
         chip.V[0xF] = 0;
-        for (int i = 0; i <= n; i++)
+        for (int i = 0; i < n; i++)
         { // row
             auto sprite = chip.memory[chip.index + i];
             for (int j = 0; j < 8; j++)
@@ -212,12 +228,15 @@ void cycle()
                     {
                         chip.V[0xF] = 1;
                     }
-                    screen_pixel ^= 1;
+                    chip.graphics[(x + j) % 64 + ((y + i) % 32) * 64] ^= 1;
+                    //screen_pixel ^= 1;
                 }
-                chip.graphics[(x + j) % 64 + ((y + i) % 32) * 64] = screen_pixel;
-                chip.draw_flag = 1;
+                
+                
             }
         }
+        chip.PC +=2;
+        chip.draw_flag = 1;
         break;
     } // display
     }
@@ -229,6 +248,45 @@ void cycle()
     {
         chip.sound--;
     }
+}
+
+void destroySDL() {
+    SDL_DestroyRenderer(render);
+    SDL_DestroyTexture(texture);
+    SDL_DestroyWindow(screen);
+    SDL_Quit();
+}
+
+void draw() {
+    if (chip.draw_flag) {
+        SDL_UpdateTexture(texture, nullptr, chip.graphics,width * sizeof(Uint32));
+        //SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
+        SDL_RenderClear(render);
+        SDL_RenderCopy(render, texture, nullptr, nullptr);
+        SDL_RenderPresent(render);
+    }
+    
+    /*SDL_SetRenderDrawColor(render,0,0,0,255); //black screen
+    SDL_RenderClear(render);
+
+    SDL_SetRenderDrawColor(render,255,255,255,255); //drawing is white
+
+    for (int dwid = 0; dwid < width; dwid++){
+        for (int dhei = 0; dhei < height; dhei++) {
+            int pixel = chip.graphics[dwid + dhei * 64];
+            if (pixel){
+                int x =  dwid * width;
+                int y = dhei * height;
+
+                SDL_Rect rect = { x, y, width, height };
+
+                // Draw the rectangle on the SDL window
+                SDL_RenderFillRect(render, &rect);
+            }
+        }
+    }
+
+    SDL_RenderPresent(render);*/
 }
 
 void load_rom(const char *rom)
