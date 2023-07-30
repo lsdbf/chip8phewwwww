@@ -38,8 +38,8 @@ void initialize()
 {
     chip = {
         .memory = {0},
-        .delay = {0},
-        .sound = {0},
+        .delay = 0,
+        .sound = 0,
         .SP = 0,
         .V = {0},
         .stack = {0},
