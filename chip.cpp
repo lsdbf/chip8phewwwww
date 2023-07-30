@@ -151,11 +151,11 @@ void cycle()
 
             switch(chip.opcode & 0x00FF)
             {
-                case 0xE09E:
+                case 0x009E:
                     if(e.key.keysym.sym == KEYMAP[chip.V[chip.opcode & 0x0F00]])
                         chip.PC += 2;
                     break;
-                case 0xE0A1:
+                case 0x00A1:
                     if(e.key.keysym.sym != KEYMAP[chip.V[chip.opcode & 0x0F00]])
                         chip.PC += 2;
                     break;
@@ -163,22 +163,22 @@ void cycle()
         case 0xF000:
             switch(chip.opcode & 0x00FF)
             {
-                case 0xF007:
+                case 0x0007:
                     chip.V[chip.opcode & 0x0F00] = chip.delay;
                     break;
-                case 0xF00A:
+                case 0x000A:
 
                     break;
-                case 0xF015:
+                case 0x0015:
                     chip.delay = chip.V[chip.opcode & 0x0F00];
                     break;
-                case 0xF018:
+                case 0x0018:
                     chip.sound = chip.opcode & 0x0F00;
                     break;
-                case 0xF01E:
+                case 0x001E:
                     chip.index = chip.index + chip.V[chip.opcode & 0x0F00];
                     break;
-                case 0xF029:
+                case 0x0029:
                     chip.index = chip.V[chip.opcode & 0x0F00];
                     break;
             }
