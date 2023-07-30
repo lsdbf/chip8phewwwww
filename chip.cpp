@@ -135,6 +135,7 @@ void cycle() {
                     chip.V[chip.opcode & 0x0F00] = chip.delay;
                     break;
                 case 0xF00A:
+
                     break;
                 case 0xF015:
                     chip.delay = chip.V[chip.opcode & 0x0F00];
@@ -144,6 +145,9 @@ void cycle() {
                     break;
                 case 0xF01E:
                     chip.index = chip.index + chip.V[chip.opcode & 0x0F00];
+                    break;
+                case 0xF029:
+                    chip.index = chip.V[chip.opcode & 0x0F00];
                     break;
             }
             break;
