@@ -115,10 +115,12 @@ void cycle() {
             break;
         }
         case 0xE000:
+            SDL_Event e;
+
             switch(chip.opcode & 0x00FF)
             {
                 case 0xE09E:
-                    if(KEYMAP[chip.V[chip.opcode & 0x0F00]] == 1)
+                    if(e.key.keysym.sym == KEYMAP[chip.V[chip.opcode & 0x0F00]])
                         chip.PC += 2;
                     break;
                 case 0xE0A1:
