@@ -156,9 +156,10 @@ void cycle()
         case 0xE09E:
             if(e.key.keysym.sym == KEYMAP[chip.V[chip.opcode & 0x0F00]])
                 chip.PC += 2;
-                break;
             break;
         case 0xE0A1:
+            if(e.key.keysym.sym != KEYMAP[chip.V[chip.opcode & 0x0F00]])
+                chip.PC += 2;
             break;
         }
         break;
