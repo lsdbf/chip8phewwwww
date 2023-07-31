@@ -175,6 +175,9 @@ void cycle()
         case 0xF01E:
             chip.index = chip.index + chip.V[chip.opcode & 0x0F00];
             break;
+        case 0x0029:
+            chip.index = chip.V[chip.opcode & 0x0F00];
+            break;
         }
         break;
     case 0x7000:
