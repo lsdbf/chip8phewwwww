@@ -187,7 +187,7 @@ void cycle()
             for(int i = 0; i <= (chip.opcode & 0x0F00); i++)
             {
                 chip.memory[chip.index] = chip.V[i];
-                chip.index++;
+                ++chip.index;
             }
             break;
         case 0x0065:
