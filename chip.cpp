@@ -239,8 +239,8 @@ void cycle()
         
     case 0xD000:
     {
-        auto x = chip.V[(chip.opcode & 0x0F00) >> 8] % 64;// & 0x00FF;
-        auto y = chip.V[(chip.opcode & 0x00F0) >> 4] % 32; //& 0x000F;
+        auto x = chip.V[(chip.opcode & 0x0F00) >> 8];// & 0x00FF;
+        auto y = chip.V[(chip.opcode & 0x00F0) >> 4]; //& 0x000F;
         auto n = chip.opcode & 0x000F;
         chip.V[0xF] = 0;
         for (unsigned int i = 0; i < n; i++)
@@ -248,7 +248,7 @@ void cycle()
             auto sprite = chip.memory[chip.index + i];
             for (unsigned int j = 0; j < 8; j++)
             {                 
-                unsigned int pixel = sprite & (0x80 >> j);                     // column
+                auto pixel = sprite & (0x80 >> j);                     // column
                 if (pixel != 0) {
                     if (chip.graphics[(x + i) + ((y + j) * width)] == UINT32_MAX) {
                         chip.V[0xF] = 1;
