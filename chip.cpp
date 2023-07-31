@@ -9,28 +9,15 @@ Chip8 chip = {};
 
 void initialize() {
     chip = {
-<<<<<<< HEAD
-        .memory = {0},
-        .delay = 0,
-        .sound = 0,
-        .SP = 0,
-        .V = {0},
-        .stack = {0},
-        .PC = 0x200,
-        .opcode = 0,
-        .index = 0,
-        .keyboard = {0},
-        .graphics = {0},
-=======
-        .memory     = {0},
-        .SP         = 0,
-        .V          = {0},
-        .stack      = {0},
-        .PC         = 0x200,
-        .opcode     = 0,
-        .index      = 0,
-        .graphics   = {0},
->>>>>>> parent of 5b2400c (Merge remote-tracking branch 'origin/main' into alex)
+            .memory = {0},
+            .SP = 0,
+            .V = {0},
+            .stack = {0},
+            .PC = 0x200,
+            .opcode = 0,
+            .index = 0,
+            .keyboard = {0},
+            .graphics = {0},
     };
 
     //load sprites into memory
