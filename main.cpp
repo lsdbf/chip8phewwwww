@@ -13,21 +13,9 @@ SDL_Texture *texture = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_T
 
 int main(/*int argc, char** argv*/) {
   
-  //Chip8 chip8 = {};
   initialize();
-  /*if (argc != 2) {
-    std::cerr << "Failed to load ROM" << std::endl;
-  }*/
-  /*SDL_Init(SDL_INIT_EVERYTHING);
 
-  if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-    std::cout << "SDL initialization failed: " << SDL_GetError() << std::endl;
-    return 3;
-  }*/
-
-  const char *rom_path = "ROMS/test_opcode.ch8";
-
-  
+  const char *rom_path = "ROMS/IBM Logo.ch8";
   /**/
 
   //int pitch = sizeof(chip8.graphics[0]);
@@ -36,8 +24,9 @@ int main(/*int argc, char** argv*/) {
   SDL_Event e;
   bool running = 1;
   while (running) {
-    auto start_time = SDL_GetTicks(); //make this into a switch statement
+    //auto start_time = SDL_GetTicks(); //make this into a switch statement
     cycle();
+
     draw();
 
     while (SDL_PollEvent(&e)) {
@@ -51,11 +40,11 @@ int main(/*int argc, char** argv*/) {
           }
         }
     }
-    auto end = SDL_GetTicks();
+    /*auto end = SDL_GetTicks();
     auto elasped = end - start_time;
     if (elasped < (1000/60)) {
       SDL_Delay((1000/60) - elasped);
-    }
+    }*/
     
   }
   //clean
