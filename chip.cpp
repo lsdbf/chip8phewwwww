@@ -80,20 +80,17 @@ void cycle()
     switch (chip.opcode & 0xF000)
     { // check first
     case 0x0000:
-        switch (chip.opcode & 0x00FF)
-        {            // check the last two
-        case 0x00E0: {
-            memset(chip.graphics, 0, sizeof(chip.graphics));
-            chip.PC += 2;
-            chip.draw_flag = true;
-        }
-            break;
-        case 0x00EE:{
-            --chip.SP;
-            chip.PC = chip.stack[chip.SP];
-            chip.PC += 2;
-        }
-            break;
+        switch (chip.opcode & 0x000F)
+        {            
+            case 0x0000:
+                memset(chip.graphics, 0, sizeof(chip.graphics));
+                //chip.draw_flag = true;
+                chip.PC += 2;
+                break;
+            case 0x000E:
+                chip.PC = chip.stack[chip.SP--];
+                chip.PC += 2;
+                break;
         }
         break;
     case 0x1000:
@@ -102,12 +99,13 @@ void cycle()
         break;
     case 0x2000:{
         ++chip.SP;
-        chip.PC = chip.stack[chip.SP];
+        //chip.PC = chip.stack[chip.SP];
+        chip.stack[chip.SP] = chip.PC;
         chip.PC = chip.opcode & 0x0FFF;
     }
         break;
     case 0x3000:
-        if (chip.V[chip.opcode & 0x0F00] == (chip.opcode & 0x00FF))
+        if (chip.V[(chip.opcode & 0x0F00) >> 8] == (chip.opcode & 0x00FF))
         {
             chip.PC += 4;
         }
@@ -116,7 +114,7 @@ void cycle()
         }
         break;
     case 0x4000:
-        if (chip.V[chip.opcode & 0x0F00] != (chip.opcode & 0x00FF))
+        if (chip.V[(chip.opcode & 0x0F00) >> 8] != (chip.opcode & 0x00FF))
         {
             chip.PC += 4;
         }
@@ -125,7 +123,7 @@ void cycle()
         }
         break;
     case 0x5000:
-        if (chip.V[chip.opcode & 0x0F00] == chip.V[chip.opcode & 0x00F0])
+        if (chip.V[(chip.opcode & 0x0F00) >> 8] == chip.V[chip.opcode & 0x00F0])
         {
             chip.PC += 4;
         }
@@ -134,12 +132,12 @@ void cycle()
         }
         break;
     case 0x6000:{
-        chip.V[chip.opcode & 0x0F00 >> 8] = chip.opcode & 0x00FF;
+        chip.V[(chip.opcode & 0x0F00) >> 8] = chip.opcode & 0x00FF;
         chip.PC += 2;
     }
         break;
     case 0x9000:
-        if (chip.V[chip.opcode & 0x0F00] != chip.V[chip.opcode & 0x00F0])
+        if (chip.V[(chip.opcode & 0x0F00) >> 8] != chip.V[chip.opcode & 0x00F0])
         {
             chip.PC += 2;
         }
@@ -210,11 +208,12 @@ void cycle()
             }
             break;
         case 0x0065:
-            for(int i = 0; i <= (chip.opcode & 0x0F00); i++)
+            
+            for(int i = 0; i <= chip.V[(chip.opcode & 0x0F00) >> 8]; i++)
             {
-                chip.V[i] = chip.memory[chip.index];
-                ++chip.index;
+                chip.V[i] = chip.memory[chip.index + i];
             }
+            chip.PC+=2;
             break;
         }
         case 0x0033: {
@@ -232,58 +231,85 @@ void cycle()
     }
 
     case 0x8000:{
-        switch (chip.opcode & 0x000F)
-        case 0x0: // 8xy0 - LD Vx, Vy {}
-            chip.V[chip.opcode & 0x0F00] = chip.V[chip.opcode & 0x00F0];
-            chip.PC += 2;
-        break;
-        case 0x0001: // 8xy1 - OR Vx, Vy
-            chip.V[chip.opcode & 0x0F00] |= chip.V[chip.opcode & 0x00F0];
+        switch (chip.opcode & 0x000F){
+            case 0x0000: // 8xy0 - LD Vx, Vy {}
+            chip.V[(chip.opcode & 0x0F00) >> 8] = chip.V[(chip.opcode & 0x00F0) >> 4];
             chip.PC += 2;
             break;
-        case 0x0002: // 8xy2 - AND Vx, Vy
-            chip.V[chip.opcode & 0x0F00] &= chip.V[chip.opcode & 0x00F0];
+
+            case 0x0001: // 8xy1 - OR Vx, Vy
+            chip.V[(chip.opcode & 0x0F00) >> 8] |= chip.V[(chip.opcode & 0x00F0) >> 4];
             chip.PC += 2;
             break;
-        case 0x0003: // 8xy3 - XOR Vx, Vy
-            chip.V[chip.opcode & 0x0F00] ^= chip.V[chip.opcode & 0x00F0];
+
+            case 0x0002: // 8xy2 - AND Vx, Vy
+            chip.V[(chip.opcode & 0x0F00) >> 8] &= chip.V[(chip.opcode & 0x00F0) >> 4];
             chip.PC += 2;
             break;
-        case 0x0004: // 8xy4 - ADD Vx, Vy
-            chip.V[0xF] = (chip.V[chip.opcode & 0x0F00] + chip.V[chip.opcode & 0x00F0]) > 255 ? 1 : 0;
-            chip.V[chip.opcode & 0x0F00] = chip.V[chip.opcode & 0x0F00] + chip.V[chip.opcode & 0x00F0] > 255 ? 1 : 0;
+
+            case 0x0003: // 8xy3 - XOR Vx, Vy
+            chip.V[(chip.opcode & 0x0F00) >> 8] ^= chip.V[(chip.opcode & 0x00F0) >> 4];
             chip.PC += 2;
             break;
-        case 0x0005:
-        {
-            auto Vy = chip.V[chip.opcode & 0x00F0];
-            auto Vx = chip.V[chip.opcode & 0x0F00] > Vy ? 1 : 0;
-            Vx = Vx - Vy;
-            chip.PC += 2;
-            break;
-        }
-        case 0x0006:
-        {
-            chip.V[0xF] = chip.V[chip.opcode & 0x0F00] & 1 ? 1 : 0;
-            chip.V[chip.opcode & 0x0F00] / 2u;
-            chip.PC += 2;
-            break;
-        }
-        case 0x0007:
-        {
-            auto Vx = chip.V[chip.opcode & 0x0F00];
-            auto Vy = chip.V[chip.opcode & 0x00F0] > Vx ? 1 : 0;
-            Vx = Vy - Vx;
-            chip.PC += 2;
-            break;
-        }
-        case 0x000E:
-        {
-            chip.V[0xF] = chip.V[chip.opcode & 0x0F00] << 1 ? 1 : 0;
+
+            case 0x0004:{ // 8xy4 - ADD Vx, Vy
+                chip.V[(chip.opcode & 0x0F00) >> 8] += chip.V[(chip.opcode & 0x00F0) >> 4];
+                if (chip.V[(chip.opcode & 0x0F00) >> 8]  > (0xFF - chip.V[(chip.opcode & 0x0F00) >> 8])){
+                    chip.V[0xF] = 1;
+                }
+                else{
+                    chip.V[0xF] = 0;
+                }
+                chip.PC += 2;
+                break;
+            }
+            case 0x0005:
+            {
+               
+                if (chip.V[(chip.opcode & 0x0F00) >> 8] > chip.V[(chip.opcode & 0x00F0) >> 4]){
+                    chip.V[0xF] = 1;
+                }
+                else
+                    chip.V[0xF] = 0;
+                chip.V[(chip.opcode & 0x0F00) >> 8] -= chip.V[(chip.opcode & 0x00F0) >> 4];
+                chip.PC += 2;
+                break;
+            }
+
+            case 0x0006:
+            {
+                if (chip.V[(chip.opcode & 0x0F00) >> 8] & 0x0001){
+                    chip.V[0xF] = 1;
+                }
+                else {
+                    chip.V[0xF] = 0;
+                }
+                chip.V[(chip.opcode & 0x0F00) >> 8] >>= 1;
+                chip.PC += 2;
+                break;
+            }
+
+            case 0x0007:
+            {
+                if (chip.V[(chip.opcode & 0x0F00) >> 8] < chip.V[(chip.opcode & 0x00F0) >> 4]){
+                    chip.V[0xF] = 1;
+                }
+                else
+                    chip.V[0xF] = 0;
+                chip.V[(chip.opcode & 0x0F00) >> 8] = chip.V[(chip.opcode & 0x00F0) >> 4] -  chip.V[(chip.opcode & 0x0F00) >> 8];
+                chip.PC += 2;
+                break;
+            }
+            case 0x000E:
+            {
+            chip.V[0xF] = chip.V[(chip.opcode & 0x0F00) >> 8] << 7 ? 1 : 0;
+            chip.V[(chip.opcode & 0x0F00) >> 8] <<= 1;
             chip.PC += 2;
             break; // make sure to check this pls
+            }
         }
-        break;
+
+    break;   
     }
         
     case 0xD000:
@@ -311,8 +337,7 @@ void cycle()
         chip.PC +=2;
         break;
     } // display
-
-    }
+    break;}
     if (chip.delay > 0)
     {
         chip.delay--;
