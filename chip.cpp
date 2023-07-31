@@ -190,6 +190,13 @@ void cycle()
                 chip.index++;
             }
             break;
+        case 0x0065:
+            for(int i = 0; i <= (chip.opcode & 0x0F00); i++)
+            {
+                chip.V[i] = chip.memory[chip.index];
+                ++chip.index;
+            }
+            break;
         }
         break;
     case 0x7000:
