@@ -15,6 +15,8 @@ SDL_Renderer *render = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
 
 SDL_Texture *texture = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,width,height);
 
+bool is_key_pressed = 0;
+
 uint16_t KEYS[FONT_SIZE] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -80,15 +82,17 @@ void cycle()
     case 0x0000:
         switch (chip.opcode & 0x00FF)
         {            // check the last two
-        case 0x00E0: // clear display
+        case 0x00E0: {
             memset(chip.graphics, 0, sizeof(chip.graphics));
             chip.PC += 2;
             chip.draw_flag = true;
+        }
             break;
-        case 0x00EE:
+        case 0x00EE:{
             --chip.SP;
             chip.PC = chip.stack[chip.SP];
             chip.PC += 2;
+        }
             break;
         }
         break;
@@ -96,10 +100,11 @@ void cycle()
         chip.PC = chip.opcode & 0x0FFF;
         //chip.PC += 2;
         break;
-    case 0x2000:
+    case 0x2000:{
         ++chip.SP;
         chip.PC = chip.stack[chip.SP];
         chip.PC = chip.opcode & 0x0FFF;
+    }
         break;
     case 0x3000:
         if (chip.V[chip.opcode & 0x0F00] == (chip.opcode & 0x00FF))
@@ -128,9 +133,10 @@ void cycle()
             chip.PC += 2;
         }
         break;
-    case 0x6000:
+    case 0x6000:{
         chip.V[chip.opcode & 0x0F00 >> 8] = chip.opcode & 0x00FF;
         chip.PC += 2;
+    }
         break;
     case 0x9000:
         if (chip.V[chip.opcode & 0x0F00] != chip.V[chip.opcode & 0x00F0])
@@ -138,9 +144,10 @@ void cycle()
             chip.PC += 2;
         }
         break;
-    case 0xA000:
+    case 0xA000:{
         chip.index = (chip.opcode & 0x0FFF);
         chip.PC += 2;
+    }
         break;
     case 0xB000:
         chip.PC = chip.V[0] + (chip.opcode & 0x0FFF);
@@ -161,30 +168,50 @@ void cycle()
     case 0xF000:
         switch (chip.opcode & 0x00FF)
         {
-        case 0xF007:
+        case 0x0007:
             chip.V[chip.opcode & 0x0F00] = chip.delay;
             break;
-        case 0xF00A:
+        case 0x000A: {
+            auto regx = chip.V[(chip.opcode & 0x0F00) >> 8];
+            for (int key = 0; key < FONT_SIZE/5; key++) {
+                if (KEYMAP[key] == 1) {
+                    regx = key;
+                    is_key_pressed = true;
+                }
+            }
+            if (!is_key_pressed) {
+                return;
+            }
+            chip.PC+=2;
+        }
             break;
-        case 0xF015:
+        case 0x0015:
             chip.delay = chip.V[chip.opcode & 0x0F00];
             break;
-        case 0xF018:
+        case 0x0018:
             chip.sound = chip.opcode & 0x0F00;
             break;
-        case 0xF01E:
+        case 0x001E:
             chip.index = chip.index + chip.V[chip.opcode & 0x0F00];
             break;
         }
-        break;
-    case 0x7000:
+        case 0x0033: {
+            auto regx = chip.V[(chip.opcode & 0x0F00) >> 8];
+            chip.memory[chip.index] = regx / 100;
+            chip.memory[chip.index + 1] = (regx / 10) % 10;
+            chip.memory[chip.index + 1] = (regx % 100) % 10;
+            chip.PC+=2;
+        }
+    case 0x7000:{
         chip.V[(chip.opcode & 0x0F00) >> 8] += chip.opcode & 0x00FF;
         //chip.V[chip.opcode & 0x0F00] &= 0xFF;
         chip.PC += 2;
         break;
+    }
+        
     case 0x8000:{
         switch (chip.opcode & 0x000F)
-        case 0x0: // 8xy0 - LD Vx, Vy
+        case 0x0: // 8xy0 - LD Vx, Vy {}
             chip.V[chip.opcode & 0x0F00] = chip.V[chip.opcode & 0x00F0];
             chip.PC += 2;
         break;
