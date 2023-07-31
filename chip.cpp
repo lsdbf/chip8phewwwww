@@ -157,11 +157,16 @@ void cycle()
         chip.V[chip.opcode & 0x0F00] = (rand() % 0x0100) & (chip.opcode & 0x00FF);
         break;
     case 0xE000:
+        SDL_Event e;
         switch (chip.opcode & 0x00FF)
         {
-        case 0xE09E:
+        case 0x009E:
+            if(e.key.keysym.sym == KEYMAP[chip.V[chip.opcode & 0x0F00]])
+                chip.PC += 2;
             break;
-        case 0xE0A1:
+        case 0x00A1:
+            if(e.key.keysym.sym != KEYMAP[chip.V[chip.opcode & 0x0F00]])
+                chip.PC += 2;
             break;
         }
         break;
@@ -194,6 +199,23 @@ void cycle()
         case 0x001E:
             chip.index = chip.index + chip.V[chip.opcode & 0x0F00];
             break;
+        case 0x0029:
+            chip.index = chip.V[chip.opcode & 0x0F00];
+            break;
+        case 0x0055:
+            for(int i = 0; i <= (chip.opcode & 0x0F00); i++)
+            {
+                chip.memory[chip.index] = chip.V[i];
+                ++chip.index;
+            }
+            break;
+        case 0x0065:
+            for(int i = 0; i <= (chip.opcode & 0x0F00); i++)
+            {
+                chip.V[i] = chip.memory[chip.index];
+                ++chip.index;
+            }
+            break;
         }
         case 0x0033: {
             auto regx = chip.V[(chip.opcode & 0x0F00) >> 8];
@@ -208,7 +230,7 @@ void cycle()
         chip.PC += 2;
         break;
     }
-        
+
     case 0x8000:{
         switch (chip.opcode & 0x000F)
         case 0x0: // 8xy0 - LD Vx, Vy {}
