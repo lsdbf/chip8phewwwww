@@ -171,58 +171,59 @@ void cycle()
     case 0xF000:
         switch (chip.opcode & 0x00FF)
         {
-        case 0x0007:
-            chip.V[chip.opcode & 0x0F00] = chip.delay;
-            break;
-        case 0x000A: {
-            auto regx = chip.V[(chip.opcode & 0x0F00) >> 8];
-            for (int key = 0; key < FONT_SIZE/5; key++) {
-                if (KEYMAP[key] == 1) {
-                    regx = key;
-                    is_key_pressed = true;
+            case 0x0007:
+                chip.V[chip.opcode & 0x0F00] = chip.delay;
+                break;
+            case 0x000A: {
+                auto regx = chip.V[(chip.opcode & 0x0F00) >> 8];
+                for (int key = 0; key < FONT_SIZE / 5; key++) {
+                    if (KEYMAP[key] == 1) {
+                        regx = key;
+                        is_key_pressed = true;
+                    }
                 }
+                if (!is_key_pressed) {
+                    return;
+                }
+                chip.PC += 2;
             }
-            if (!is_key_pressed) {
-                return;
+                break;
+            case 0x0015:
+                chip.delay = chip.V[chip.opcode & 0x0F00];
+                break;
+            case 0x0018:
+                chip.sound = chip.opcode & 0x0F00;
+                break;
+            case 0x001E:
+                chip.index += chip.V[(chip.opcode & 0x0F00) >> 8];
+                chip.PC += 2;
+                break;
+            case 0x0029:
+                chip.index = chip.V[(chip.opcode & 0x0F00) >> 8];
+                chip.PC += 2;
+                break;
+            case 0x0055:
+                for (int i = 0; i <= (chip.opcode & 0x0F00) >> 8; i++) {
+                    chip.memory[chip.index + i] = chip.V[i];
+                }
+                chip.PC += 2;
+                break;
+            case 0x0065:
+                for (int i = 0; i <= (chip.opcode & 0x0F00) >> 8; i++) {
+                    chip.V[i] = chip.memory[chip.index + i];
+                }
+                chip.PC += 2;
+                break;
+            case 0x0033: {
+                auto regx = chip.V[(chip.opcode & 0x0F00) >> 8];
+                chip.memory[chip.index] = regx / 100;
+                chip.memory[chip.index + 1] = (regx / 10) % 10;
+                chip.memory[chip.index + 2] = (regx % 100) % 10;
+                chip.PC += 2;
+                break;
             }
-            chip.PC+=2;
         }
-            break;
-        case 0x0015:
-            chip.delay = chip.V[chip.opcode & 0x0F00];
-            break;
-        case 0x0018:
-            chip.sound = chip.opcode & 0x0F00;
-            break;
-        case 0x001E:
-            chip.index = chip.index + chip.V[chip.opcode & 0x0F00];
-            break;
-        case 0x0029:
-            chip.index = chip.V[chip.opcode & 0x0F00];
-            break;
-        case 0x0055:
-            for(int i = 0; i <= (chip.opcode & 0x0F00); i++)
-            {
-                chip.memory[chip.index] = chip.V[i];
-                ++chip.index;
-            }
-            break;
-        case 0x0065:
-            
-            for(int i = 0; i <= chip.V[(chip.opcode & 0x0F00) >> 8]; i++)
-            {
-                chip.V[i] = chip.memory[chip.index + i];
-            }
-            chip.PC+=2;
-            break;
-        }
-        case 0x0033: {
-            auto regx = chip.V[(chip.opcode & 0x0F00) >> 8];
-            chip.memory[chip.index] = regx / 100;
-            chip.memory[chip.index + 1] = (regx / 10) % 10;
-            chip.memory[chip.index + 1] = (regx % 100) % 10;
-            chip.PC+=2;
-        }
+        break;
     case 0x7000:{
         chip.V[(chip.opcode & 0x0F00) >> 8] += chip.opcode & 0x00FF;
         //chip.V[chip.opcode & 0x0F00] &= 0xFF;
