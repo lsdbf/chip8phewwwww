@@ -1,6 +1,6 @@
 #include "chip.hh"
 #include "keymap.hh"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <random>
 #include <fstream>
 #include <vector>
