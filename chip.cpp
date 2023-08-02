@@ -5,7 +5,7 @@
 #include <fstream>
 #include <vector>
 
-Chip8 chip = {};
+/*Chip8 chip = {};
 
 SDL_Window *screen = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_CENTERED, 
   SDL_WINDOWPOS_CENTERED, 1200, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
@@ -13,7 +13,7 @@ SDL_Window *screen = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_CENTERED,
 
 SDL_Renderer *render = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
 
-SDL_Texture *texture = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,width,height);
+SDL_Texture *texture = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,width,height);*/
 
 bool is_key_pressed = 0;
 
@@ -36,9 +36,9 @@ uint16_t FONT[FONT_SIZE] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-void initialize()
+void initialize(Chip8& chip)
 {
-    chip = {
+    /*chip = {
         .memory = {0},
         .delay = 0,
         .sound = 0,
@@ -51,12 +51,19 @@ void initialize()
         .keyboard = {0},
         .graphics = {0},
         .draw_flag = false,
-    };
+    };*/
     memset(chip.memory, 0, sizeof(chip.memory));
     memset(chip.graphics, 0, sizeof(chip.memory));
     memset(chip.V, 0, sizeof(chip.V));
     memset(chip.stack, 0, sizeof(chip.stack));
     memset(chip.keyboard, 0, sizeof(chip.keyboard));
+    chip.delay = 0;
+    chip.sound = 0;
+    chip.SP = 0;
+    chip.PC = 0x200;
+    chip.opcode = 0;
+    chip.index = 0;
+    chip.draw_flag = false;
     
     // load sprites into memory
     for (unsigned int i = 0; i < FONT_SIZE; ++i)
@@ -72,7 +79,7 @@ auto* opcode    = &(chip.opcode);
 auto* stack     = &(chip.stack);
 auto* PC        = &(chip.PC);
 */
-void cycle()
+void cycle(Chip8& chip)
 {
     // fetch
     chip.opcode = chip.memory[chip.PC] << 8 | chip.memory[chip.PC + 1];
@@ -349,14 +356,14 @@ void cycle()
     }
 }
 
-void destroySDL() {
+void destroySDL(SDL_Renderer* render, SDL_Texture* texture, SDL_Window* screen) {
     SDL_DestroyRenderer(render);
     SDL_DestroyTexture(texture);
     SDL_DestroyWindow(screen);
     SDL_Quit();
 }
 
-void draw() {
+void draw(Chip8& chip, SDL_Texture* texture, SDL_Renderer* render) {
     if(chip.draw_flag){
         uint32_t pixels[width * height];
 
@@ -373,7 +380,7 @@ void draw() {
     }
 }
 
-void load_rom(const char *rom)
+void load_rom(Chip8& chip, const char *rom)
 {
 
     std::FILE *rom_game;
