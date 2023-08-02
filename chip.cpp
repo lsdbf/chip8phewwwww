@@ -17,7 +17,7 @@ SDL_Texture *texture = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_T
 
 bool is_key_pressed = 0;
 
-uint16_t KEYS[FONT_SIZE] = {
+uint16_t FONT[FONT_SIZE] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
