@@ -1,4 +1,4 @@
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <iostream>
 #include "chip.hh"
 
@@ -11,20 +11,18 @@ SDL_Renderer *render = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
 SDL_Texture *texture = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,width,height);*/
   
 
-int main(/*int argc, char** argv*/) {
+int main(int argc, char** argv) {
   
   initialize();
 
-  const char *rom_path = "ROMS/IBM Logo.ch8";
+  const char *rom_path = "ROMS\\";
   /**/
 
-  //int pitch = sizeof(chip8.graphics[0]);
-  
   load_rom(rom_path);
   SDL_Event e;
   bool running = 1;
   while (running) {
-    //auto start_time = SDL_GetTicks(); //make this into a switch statement
+    auto start_time = SDL_GetTicks(); //make this into a switch statement
     cycle();
 
     draw();
@@ -40,11 +38,11 @@ int main(/*int argc, char** argv*/) {
           }
         }
     }
-    /*auto end = SDL_GetTicks();
+    auto end = SDL_GetTicks();
     auto elasped = end - start_time;
     if (elasped < (1000/60)) {
       SDL_Delay((1000/60) - elasped);
-    }*/
+    }
     
   }
   //clean
