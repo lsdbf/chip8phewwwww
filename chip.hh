@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <iostream>
+#include <SDL.h>
 
 const unsigned int width = 64;
 const unsigned int height = 32;
@@ -28,9 +29,9 @@ typedef struct{
 
 extern uint16_t FONT[FONT_SIZE];
 
-void initialize();
-void cycle();
-void load_rom(const char* rom_game);
-void draw();
-void destroySDL();
+void initialize(Chip8& chip);
+void cycle(Chip8& chip);
+void load_rom(Chip8& chip, const char* rom_game);
+void draw(Chip8& chip, SDL_Texture* texture, SDL_Renderer* render);
+void destroySDL(SDL_Renderer* render, SDL_Texture* texture, SDL_Window* screen);
 #pragma once
