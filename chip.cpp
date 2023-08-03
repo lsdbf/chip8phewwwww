@@ -1,6 +1,6 @@
 #include "chip.hh"
 #include "keymap.hh"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <cmath>
 #include <random>
 #include <fstream>
@@ -103,7 +103,7 @@ void cycle()
         }
         break;
     case 0x5000:
-        if (chip.V[(chip.opcode & 0x0F00) >> 8] == chip.V[chip.opcode & 0x00F0])
+        if (chip.V[(chip.opcode & 0x0F00) >> 8] == chip.V[(chip.opcode & 0x00F0) >> 4])
        {
             chip.PC += 2;
         }
@@ -198,8 +198,7 @@ void cycle()
         chip.PC = chip.V[0] + (chip.opcode & 0x0FFF);
         break;
     case 0xC000:
-        srand(time(NULL));
-        chip.V[(chip.opcode & 0x0F00) >> 8] = (rand() % 0x0100) & (chip.opcode & 0x00FF);
+        chip.V[(chip.opcode & 0x0F00) >> 8] = rand() & (chip.opcode & 0x00FF);
         break;
     case 0xD000:
     {
@@ -249,6 +248,7 @@ void cycle()
 
                 for (int i = 0; i < KEY_COUNT; i++) {
                     if (chip.keyboard[i] != 0) {
+                        chip.keyboard[i] = 0;
                         chip.V[(chip.opcode & 0x0F00) >> 8] = i;
                         is_key_pressed = true;
                         break;
