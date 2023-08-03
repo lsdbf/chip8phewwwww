@@ -15,8 +15,6 @@ SDL_Renderer *render = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
 
 SDL_Texture *texture = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,width,height);
 
-bool is_key_pressed = 0;
-
 uint16_t FONT[FONT_SIZE] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -163,15 +161,14 @@ void cycle()
         chip.V[chip.opcode & 0x0F00] = (rand() % 0x0100) & (chip.opcode & 0x00FF);
         break;
     case 0xE000:
-        SDL_Event e;
         switch (chip.opcode & 0x00FF)
         {
         case 0x009E:
-            if(e.key.keysym.sym == KEYMAP[chip.V[chip.opcode & 0x0F00]])
+            if(chip.keyboard[chip.V[(chip.opcode & 0x0F00) >> 8]])
                 chip.PC += 2;
             break;
         case 0x00A1:
-            if(e.key.keysym.sym != KEYMAP[chip.V[chip.opcode & 0x0F00]])
+            if(!(chip.keyboard[chip.V[(chip.opcode & 0x0F00) >> 8]]))
                 chip.PC += 2;
             break;
         }
@@ -183,19 +180,21 @@ void cycle()
                 chip.V[chip.opcode & 0x0F00] = chip.delay;
                 break;
             case 0x000A: {
-                auto regx = chip.V[(chip.opcode & 0x0F00) >> 8];
-                for (int key = 0; key < FONT_SIZE / 5; key++) {
-                    if (KEYMAP[key] == 1) {
-                        regx = key;
+                bool is_key_pressed = false;
+
+                for (int i = 0; i < KEY_COUNT; i++) {
+                    if (chip.keyboard[i] != 0) {
+                        chip.V[(chip.opcode & 0x0F00) >> 8] = i;
                         is_key_pressed = true;
+                        break;
                     }
                 }
                 if (!is_key_pressed) {
-                    return;
+                    chip.PC -= 2;
                 }
                 //chip.PC += 2;
             }
-                break;
+            break;
             case 0x0015:
                 chip.delay = chip.V[chip.opcode & 0x0F00];
                 break;
@@ -329,7 +328,7 @@ void cycle()
                 if (pixel != 0) {
                     if (chip.graphics[(x + i) + ((y + j) * width)] == UINT32_MAX) {
                         chip.V[0xF] = 1;
-                        
+
                     }
                     chip.graphics[(x + j) + ((y + i) * width)] ^= 1;
                 }
@@ -415,23 +414,21 @@ void getInput(SDL_Event e, bool& running)
         if (e.type == SDL_QUIT) {
             break;
         }
-        else if (e.type == SDL_KEYDOWN) {
-            if (e.key.keysym.sym == SDLK_ESCAPE) {
-                running = false;
-                break;
-            }
-        }
         else if(e.type == SDL_KEYDOWN)
         {
-            for(int i = 0; i <= KEY_COUNT; i++)
+            for(int i = 0; i < KEY_COUNT; i++)
             {
                 if(e.key.keysym.sym == KEYMAP[i])
                     chip.keyboard[i] = 1;
+                else if(e.key.keysym.sym == SDLK_ESCAPE){
+                    running = false;
+                    break;
+                }
             }
         }
         else if(e.type == SDL_KEYUP)
         {
-            for(int i = 0; i <= KEY_COUNT; i++)
+            for(int i = 0; i < KEY_COUNT; i++)
             {
                 if(e.key.keysym.sym == KEYMAP[i])
                     chip.keyboard[i] = 0;
