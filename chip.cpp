@@ -202,8 +202,8 @@ void cycle()
         break;
     case 0xD000:
     {
-        auto x = chip.V[(chip.opcode & 0x0F00) >> 8];
-        auto y = chip.V[(chip.opcode & 0x00F0) >> 4];
+        auto x = (chip.V[(chip.opcode & 0x0F00) >> 8]);
+        auto y = (chip.V[(chip.opcode & 0x00F0) >> 4]);
         auto n = chip.opcode & 0x000F;
         chip.V[0xF] = 0;
         for (unsigned int i = 0; i < n; i++)
@@ -217,7 +217,7 @@ void cycle()
                         chip.V[0xF] = 1;
 
                     }
-                    chip.graphics[(x + j) + ((y + i) * width)] ^= 1;
+                    chip.graphics[(x + j) + ((y + i) * width)] ^= UINT32_MAX;
                 }
             }
         }
