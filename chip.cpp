@@ -66,7 +66,7 @@ void initialize()
     // load sprites into memory
     for (unsigned int i = 0; i < FONT_SIZE; ++i)
     {
-        chip.memory[i] = KEYMAP[i];
+        chip.memory[FONT_LOAD + i] = FONT[i];
     }
 }
 
