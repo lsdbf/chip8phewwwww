@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <iostream>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 const unsigned int width = 64;
 const unsigned int height = 32;

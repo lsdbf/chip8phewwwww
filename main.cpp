@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <iostream>
 #include "chip.hh"
 
@@ -23,14 +23,12 @@ int main(int argc, char** argv) {
   bool running = 1;
   while (running) {
     auto start_time = SDL_GetTicks(); //make this into a switch statement
-    auto start_time = SDL_GetTicks(); //make this into a switch statement
     cycle();
 
     draw();
 
     getInput(e, running);
 
-    auto end = SDL_GetTicks();
     while (SDL_PollEvent(&e)) {
         if (e.type == SDL_QUIT) {
             break;
