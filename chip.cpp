@@ -240,81 +240,74 @@ void cycle()
     }
 
     case 0x8000:{
+        auto x = (chip.opcode & 0x0F00) >> 8;
+        auto y = (chip.opcode & 0x00F0) >> 4;
         switch (chip.opcode & 0x000F){
             case 0x0000: // 8xy0 - LD Vx, Vy {}
-            chip.V[(chip.opcode & 0x0F00) >> 8] = chip.V[(chip.opcode & 0x00F0) >> 4];
-            //chip.PC += 2;
+                chip.V[x] = chip.V[y];
+                //chip.PC += 2;
             break;
 
             case 0x0001: // 8xy1 - OR Vx, Vy
-            chip.V[(chip.opcode & 0x0F00) >> 8] |= chip.V[(chip.opcode & 0x00F0) >> 4];
-            //chip.PC += 2;
+                chip.V[x] |= chip.V[y];
+                //chip.PC += 2;
             break;
 
             case 0x0002: // 8xy2 - AND Vx, Vy
-            chip.V[(chip.opcode & 0x0F00) >> 8] &= chip.V[(chip.opcode & 0x00F0) >> 4];
-            //chip.PC += 2;
+                chip.V[x] &= chip.V[y];
+                //chip.PC += 2;
             break;
 
             case 0x0003: // 8xy3 - XOR Vx, Vy
-            chip.V[(chip.opcode & 0x0F00) >> 8] ^= chip.V[(chip.opcode & 0x00F0) >> 4];
-            //chip.PC += 2;
+                chip.V[x] ^= chip.V[y];
             break;
 
             case 0x0004:{ // 8xy4 - ADD Vx, Vy
-                chip.V[(chip.opcode & 0x0F00) >> 8] += chip.V[(chip.opcode & 0x00F0) >> 4];
-                if (chip.V[(chip.opcode & 0x0F00) >> 8]  > (0xFF - chip.V[(chip.opcode & 0x0F00) >> 8])){
-                    chip.V[0xF] = 1;
-                }
-                else{
-                    chip.V[0xF] = 0;
-                }
-                //chip.PC += 2;
+                auto carry = chip.V[x] + chip.V[y] > 255 ? 1 : 0;
+                
+                chip.V[x] = (chip.V[x] + chip.V[y]) & 0xFF;
+                chip.V[0xF] = carry;
                 break;
             }
             case 0x0005:
             {
-               
-                if (chip.V[(chip.opcode & 0x0F00) >> 8] > chip.V[(chip.opcode & 0x00F0) >> 4]){
-                    chip.V[0xF] = 1;
-                }
-                else
-                    chip.V[0xF] = 0;
-                chip.V[(chip.opcode & 0x0F00) >> 8] -= chip.V[(chip.opcode & 0x00F0) >> 4];
-                //chip.PC += 2;
+                auto carry = chip.V[x] > chip.V[y] ? 1 : 0;
+                
+                chip.V[x] -= chip.V[y];
+                chip.V[0xF] = carry;
                 break;
             }
 
             case 0x0006:
             {
-                if (chip.V[(chip.opcode & 0x0F00) >> 8] & 0x0001){
+                /*if (chip.V[x] & 0x0001){
                     chip.V[0xF] = 1;
                 }
                 else {
                     chip.V[0xF] = 0;
                 }
-                chip.V[(chip.opcode & 0x0F00) >> 8] >>= 1;
-                //chip.PC += 2;
+                
+                chip.V[x] >>= 1;*/
+                auto carry = chip.V[x] & 0x0001 ? 1 : 0;
+                chip.V[x] >>= 1;
+                chip.V[0xF] = carry;
+                
                 break;
             }
 
             case 0x0007:
             {
-                if (chip.V[(chip.opcode & 0x0F00) >> 8] < chip.V[(chip.opcode & 0x00F0) >> 4]){
-                    chip.V[0xF] = 1;
-                }
-                else
-                    chip.V[0xF] = 0;
-                chip.V[(chip.opcode & 0x0F00) >> 8] = chip.V[(chip.opcode & 0x00F0) >> 4] -  chip.V[(chip.opcode & 0x0F00) >> 8];
-                //chip.PC += 2;
+                auto carry = chip.V[y] >= chip.V[x] ? 1 : 0;
+                chip.V[x] = chip.V[y] - chip.V[x];
+                chip.V[0xF] = carry;
                 break;
             }
             case 0x000E:
             {
-            chip.V[0xF] = chip.V[(chip.opcode & 0x0F00) >> 8] << 7 ? 1 : 0;
-            chip.V[(chip.opcode & 0x0F00) >> 8] <<= 1;
-            //chip.PC += 2;
-            break; // make sure to check this pls
+                auto carry = chip.V[x] >> 7; //most sig bit to right
+                chip.V[x] <<= 1;
+                chip.V[0xF] = carry;
+                break;
             }
         }
 
@@ -343,7 +336,6 @@ void cycle()
             }
         }
         chip.draw_flag = true;
-        //chip.PC +=2;
         break;
     } // display
     break;}
