@@ -1,6 +1,6 @@
 #include "chip.hh"
 #include "keymap.hh"
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <random>
 #include <fstream>
 #include <vector>
@@ -38,7 +38,7 @@ uint16_t FONT[FONT_SIZE] = {
 
 void initialize()
 {
-    chip = {
+    /*chip = {
         .memory = {0},
         .delay = 0,
         .sound = 0,
@@ -51,7 +51,14 @@ void initialize()
         .keyboard = {0},
         .graphics = {0},
         .draw_flag = false,
-    };
+    };*/
+    chip.delay = 0;
+    chip.sound = 0;
+    chip.SP = 0;
+    chip.PC = 0x200;
+    chip.opcode = 0;
+    chip.index = 0;
+    chip.draw_flag = 0;
     memset(chip.memory, 0, sizeof(chip.memory));
     memset(chip.graphics, 0, sizeof(chip.memory));
     memset(chip.V, 0, sizeof(chip.V));
@@ -76,6 +83,7 @@ void cycle()
 {
     // fetch
     chip.opcode = chip.memory[chip.PC] << 8 | chip.memory[chip.PC + 1];
+    chip.PC+=2;
     // decode
     switch (chip.opcode & 0xF000)
     { // check first
@@ -84,12 +92,12 @@ void cycle()
         {            
             case 0x0000:
                 memset(chip.graphics, 0, sizeof(chip.graphics));
-                //chip.draw_flag = true;
-                chip.PC += 2;
+                chip.draw_flag = true;
+                //chip.PC += 2;
                 break;
             case 0x000E:
                 chip.PC = chip.stack[chip.SP--];
-                chip.PC += 2;
+                //chip.PC += 2;
                 break;
         }
         break;
@@ -107,44 +115,44 @@ void cycle()
     case 0x3000:
         if (chip.V[(chip.opcode & 0x0F00) >> 8] == (chip.opcode & 0x00FF))
         {
-            chip.PC += 4;
-        }
-        else{
             chip.PC += 2;
         }
+        /*else{
+            chip.PC += 2;
+        }*/
         break;
     case 0x4000:
         if (chip.V[(chip.opcode & 0x0F00) >> 8] != (chip.opcode & 0x00FF))
         {
-            chip.PC += 4;
-        }
-        else {
             chip.PC += 2;
         }
+        /*else{
+            chip.PC += 2;
+        }*/
         break;
     case 0x5000:
         if (chip.V[(chip.opcode & 0x0F00) >> 8] == chip.V[chip.opcode & 0x00F0])
-        {
-            chip.PC += 4;
-        }
-        else {
+       {
             chip.PC += 2;
         }
+        /*else{
+            chip.PC += 2;
+        }*/
         break;
     case 0x6000:{
         chip.V[(chip.opcode & 0x0F00) >> 8] = chip.opcode & 0x00FF;
-        chip.PC += 2;
+        //chip.PC += 2;
     }
         break;
     case 0x9000:
-        if (chip.V[(chip.opcode & 0x0F00) >> 8] != chip.V[chip.opcode & 0x00F0])
+        if (chip.V[(chip.opcode & 0x0F00) >> 8] != chip.V[(chip.opcode & 0x00F0) >> 4])
         {
             chip.PC += 2;
         }
         break;
     case 0xA000:{
         chip.index = (chip.opcode & 0x0FFF);
-        chip.PC += 2;
+        //chip.PC += 2;
     }
         break;
     case 0xB000:
@@ -185,7 +193,7 @@ void cycle()
                 if (!is_key_pressed) {
                     return;
                 }
-                chip.PC += 2;
+                //chip.PC += 2;
             }
                 break;
             case 0x0015:
@@ -196,30 +204,30 @@ void cycle()
                 break;
             case 0x001E:
                 chip.index += chip.V[(chip.opcode & 0x0F00) >> 8];
-                chip.PC += 2;
+                //chip.PC += 2;
                 break;
             case 0x0029:
                 chip.index = chip.V[(chip.opcode & 0x0F00) >> 8];
-                chip.PC += 2;
+                //chip.PC += 2;
                 break;
             case 0x0055:
                 for (int i = 0; i <= (chip.opcode & 0x0F00) >> 8; i++) {
                     chip.memory[chip.index + i] = chip.V[i];
                 }
-                chip.PC += 2;
+                //chip.PC += 2;
                 break;
             case 0x0065:
                 for (int i = 0; i <= (chip.opcode & 0x0F00) >> 8; i++) {
                     chip.V[i] = chip.memory[chip.index + i];
                 }
-                chip.PC += 2;
+                //chip.PC += 2;
                 break;
             case 0x0033: {
                 auto regx = chip.V[(chip.opcode & 0x0F00) >> 8];
                 chip.memory[chip.index] = regx / 100;
                 chip.memory[chip.index + 1] = (regx / 10) % 10;
                 chip.memory[chip.index + 2] = (regx % 100) % 10;
-                chip.PC += 2;
+                //chip.PC += 2;
                 break;
             }
         }
@@ -227,7 +235,7 @@ void cycle()
     case 0x7000:{
         chip.V[(chip.opcode & 0x0F00) >> 8] += chip.opcode & 0x00FF;
         //chip.V[chip.opcode & 0x0F00] &= 0xFF;
-        chip.PC += 2;
+        //chip.PC += 2;
         break;
     }
 
@@ -235,22 +243,22 @@ void cycle()
         switch (chip.opcode & 0x000F){
             case 0x0000: // 8xy0 - LD Vx, Vy {}
             chip.V[(chip.opcode & 0x0F00) >> 8] = chip.V[(chip.opcode & 0x00F0) >> 4];
-            chip.PC += 2;
+            //chip.PC += 2;
             break;
 
             case 0x0001: // 8xy1 - OR Vx, Vy
             chip.V[(chip.opcode & 0x0F00) >> 8] |= chip.V[(chip.opcode & 0x00F0) >> 4];
-            chip.PC += 2;
+            //chip.PC += 2;
             break;
 
             case 0x0002: // 8xy2 - AND Vx, Vy
             chip.V[(chip.opcode & 0x0F00) >> 8] &= chip.V[(chip.opcode & 0x00F0) >> 4];
-            chip.PC += 2;
+            //chip.PC += 2;
             break;
 
             case 0x0003: // 8xy3 - XOR Vx, Vy
             chip.V[(chip.opcode & 0x0F00) >> 8] ^= chip.V[(chip.opcode & 0x00F0) >> 4];
-            chip.PC += 2;
+            //chip.PC += 2;
             break;
 
             case 0x0004:{ // 8xy4 - ADD Vx, Vy
@@ -261,7 +269,7 @@ void cycle()
                 else{
                     chip.V[0xF] = 0;
                 }
-                chip.PC += 2;
+                //chip.PC += 2;
                 break;
             }
             case 0x0005:
@@ -273,7 +281,7 @@ void cycle()
                 else
                     chip.V[0xF] = 0;
                 chip.V[(chip.opcode & 0x0F00) >> 8] -= chip.V[(chip.opcode & 0x00F0) >> 4];
-                chip.PC += 2;
+                //chip.PC += 2;
                 break;
             }
 
@@ -286,7 +294,7 @@ void cycle()
                     chip.V[0xF] = 0;
                 }
                 chip.V[(chip.opcode & 0x0F00) >> 8] >>= 1;
-                chip.PC += 2;
+                //chip.PC += 2;
                 break;
             }
 
@@ -298,20 +306,20 @@ void cycle()
                 else
                     chip.V[0xF] = 0;
                 chip.V[(chip.opcode & 0x0F00) >> 8] = chip.V[(chip.opcode & 0x00F0) >> 4] -  chip.V[(chip.opcode & 0x0F00) >> 8];
-                chip.PC += 2;
+                //chip.PC += 2;
                 break;
             }
             case 0x000E:
             {
             chip.V[0xF] = chip.V[(chip.opcode & 0x0F00) >> 8] << 7 ? 1 : 0;
             chip.V[(chip.opcode & 0x0F00) >> 8] <<= 1;
-            chip.PC += 2;
+            //chip.PC += 2;
             break; // make sure to check this pls
             }
         }
 
-    break;   
-    }
+      
+    }break; 
         
     case 0xD000:
     {
@@ -335,7 +343,7 @@ void cycle()
             }
         }
         chip.draw_flag = true;
-        chip.PC +=2;
+        //chip.PC +=2;
         break;
     } // display
     break;}
