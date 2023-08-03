@@ -1,12 +1,14 @@
 #include <stdlib.h>
 #include <time.h>
 #include <iostream>
+#include <SDL.h>
 
 const unsigned int width = 64;
 const unsigned int height = 32;
 const unsigned int MAX_MEMORY = 0xFFF;
 const unsigned int FONT_SIZE = 80;//16 sprites * 5 bytes long
 const unsigned int FONT_LOAD = 0x050; //for some reason it's common to load at this address
+const unsigned int KEY_COUNT = 16;
 
 typedef struct{
     uint8_t memory[MAX_MEMORY];
@@ -18,7 +20,7 @@ typedef struct{
     uint16_t PC;
     uint16_t opcode;
     uint16_t index;
-    uint16_t keyboard[16];
+    uint16_t keyboard[KEY_COUNT];
     uint32_t graphics[width * height];
     bool     draw_flag;
 
@@ -32,4 +34,5 @@ void cycle();
 void load_rom(const char* rom_game);
 void draw();
 void destroySDL();
+void getInput(SDL_Event e, bool& running);
 #pragma once
