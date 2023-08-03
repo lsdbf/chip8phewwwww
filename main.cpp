@@ -14,18 +14,20 @@ SDL_Texture *texture = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_T
 int main(int argc, char** argv) {
   
   initialize();
-
-  const char *rom_path = "ROMS/Trip8 Demo (2008) [Revival Studios].ch8";
+  
+  const char *rom_path = "ROMS/chip8-test-rom-with-audio.ch8";
   /**/
-
   load_rom(rom_path);
   SDL_Event e;
   bool running = 1;
   while (running) {
-    auto start_time = SDL_GetTicks(); //make this into a switch statement
+    auto start_time = SDL_GetTicks();
     cycle();
-
+    
     draw();
+    beepboop();
+    
+    
 
     getInput(e, running);
 

@@ -1,6 +1,7 @@
 #include "chip.hh"
 #include "keymap.hh"
 #include <SDL2/SDL.h>
+#include <cmath>
 #include <random>
 #include <fstream>
 #include <vector>
@@ -57,6 +58,7 @@ void initialize()
     chip.opcode = 0;
     chip.index = 0;
     chip.draw_flag = 0;
+    chip.sound_flag = 0;
     memset(chip.memory, 0, sizeof(chip.memory));
     memset(chip.graphics, 0, sizeof(chip.memory));
     memset(chip.V, 0, sizeof(chip.V));
@@ -196,10 +198,11 @@ void cycle()
             }
             break;
             case 0x0015:
-                chip.delay = chip.V[chip.opcode & 0x0F00];
+                chip.delay = chip.V[(chip.opcode & 0x0F00) >> 8];
                 break;
             case 0x0018:
-                chip.sound = chip.opcode & 0x0F00;
+                chip.sound = chip.V[(chip.opcode & 0x0F00) >> 8];
+                chip.sound_flag = true;
                 break;
             case 0x001E:
                 chip.index += chip.V[(chip.opcode & 0x0F00) >> 8];
@@ -435,4 +438,33 @@ void getInput(SDL_Event e, bool& running)
             }
         }
     }
+}
+
+void beepboop(){
+    if ((chip.sound > 0) && (chip.sound_flag == true)) {
+    SDL_Init(SDL_INIT_AUDIO);
+    
+    SDL_AudioSpec sound;
+    sound.freq = 7000;
+    sound.format = AUDIO_S16;
+    sound.channels = 1;
+    sound.samples = 1028;
+    sound.callback = NULL;
+    sound.userdata = NULL;
+    int x = 0;
+    SDL_AudioDeviceID audio = SDL_OpenAudioDevice(NULL, 0, &sound, nullptr, 0);
+    for(int i = 0; i < sound.freq; i++) {
+        x+=.010f;
+        double sampleValue = 2000 * sin(2.0 * M_PI);
+        auto sample = static_cast<Sint16>(sampleValue);
+        SDL_QueueAudio(audio, &sample, sizeof(double) * 10);
+    }
+    
+    SDL_PauseAudioDevice(audio, 0);
+    SDL_Delay(500);
+    SDL_PauseAudioDevice(audio, 1);
+    SDL_CloseAudio();
+    chip.sound_flag = false;
+    }
+
 }

@@ -23,6 +23,7 @@ typedef struct{
     uint16_t keyboard[KEY_COUNT];
     uint32_t graphics[width * height];
     bool     draw_flag;
+    bool     sound_flag;
 
 
 }Chip8;
@@ -35,4 +36,5 @@ void load_rom(const char* rom_game);
 void draw();
 void destroySDL();
 void getInput(SDL_Event e, bool& running);
+void beepboop();
 #pragma once
