@@ -1,6 +1,6 @@
 #include "chip.hh"
 #include "keymap.hh"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <random>
 #include <fstream>
 #include <vector>
@@ -415,4 +415,35 @@ void load_rom(const char *rom)
     }
     delete[] buffer;
 
+}
+
+void getInput(SDL_Event e, bool& running)
+{
+    while (SDL_PollEvent(&e)) {
+        if (e.type == SDL_QUIT) {
+            break;
+        }
+        else if (e.type == SDL_KEYDOWN) {
+            if (e.key.keysym.sym == SDLK_ESCAPE) {
+                running = false;
+                break;
+            }
+        }
+        else if(e.type == SDL_KEYDOWN)
+        {
+            for(int i = 0; i <= KEY_COUNT; i++)
+            {
+                if(e.key.keysym.sym == KEYMAP[i])
+                    chip.keyboard[i] = 1;
+            }
+        }
+        else if(e.type == SDL_KEYUP)
+        {
+            for(int i = 0; i <= KEY_COUNT; i++)
+            {
+                if(e.key.keysym.sym == KEYMAP[i])
+                    chip.keyboard[i] = 0;
+            }
+        }
+    }
 }
