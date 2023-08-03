@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
   SDL_Event e;
   bool running = 1;
   while (running) {
-    //auto start_time = SDL_GetTicks();
+    auto start_time = SDL_GetTicks();
     cycle();
     draw();
     beepboop();
@@ -30,14 +30,11 @@ int main(int argc, char** argv) {
           }
         }
     }
-    /*auto end = SDL_GetTicks();
+    auto end = SDL_GetTicks();
     auto elasped = end - start_time;
-    if (elasped < (1000/400)) {
-      SDL_Delay((1000/400) - elasped);
-    }*/
-
-
-    
+    if (elasped < (1000/500)) {
+      SDL_Delay((1000/500) - elasped);
+    }
   }
   //clean
   destroySDL();
