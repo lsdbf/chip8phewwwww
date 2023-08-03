@@ -158,7 +158,7 @@ void cycle()
         break;
     case 0xC000:
         srand(time(NULL));
-        chip.V[chip.opcode & 0x0F00] = (rand() % 0x0100) & (chip.opcode & 0x00FF);
+        chip.V[(chip.opcode & 0x0F00) >> 8] = (rand() % 0x0100) & (chip.opcode & 0x00FF);
         break;
     case 0xE000:
         switch (chip.opcode & 0x00FF)
