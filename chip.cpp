@@ -206,7 +206,7 @@ void cycle()
                 //chip.PC += 2;
                 break;
             case 0x0029:
-                chip.index = chip.V[(chip.opcode & 0x0F00) >> 8];
+                chip.index = FONT_LOAD + (5 * chip.V[(chip.opcode & 0x0F00) >> 8]);
                 //chip.PC += 2;
                 break;
             case 0x0055:
