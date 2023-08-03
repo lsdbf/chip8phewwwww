@@ -15,14 +15,14 @@ int main(int argc, char** argv) {
   
   initialize();
 
-  const char *rom_path = "ROMS/flags.ch8";
+  const char *rom_path = "ROMS/Trip8 Demo (2008) [Revival Studios].ch8";
   /**/
 
   load_rom(rom_path);
   SDL_Event e;
   bool running = 1;
   while (running) {
-    //auto start_time = SDL_GetTicks(); //make this into a switch statement
+    auto start_time = SDL_GetTicks(); //make this into a switch statement
     cycle();
 
     draw();
@@ -38,11 +38,11 @@ int main(int argc, char** argv) {
           }
         }
     }
-    /*auto end = SDL_GetTicks();
+    auto end = SDL_GetTicks();
     auto elasped = end - start_time;
     if (elasped < (1000/60)) {
       SDL_Delay((1000/60) - elasped);
-    }*/
+    }
     
   }
   //clean
