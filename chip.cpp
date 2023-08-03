@@ -66,7 +66,7 @@ void initialize()
     // load sprites into memory
     for (unsigned int i = 0; i < FONT_SIZE; ++i)
     {
-        chip.memory[i] = KEYMAP[i];
+        chip.memory[FONT_LOAD + i] = FONT[i];
     }
 }
 
@@ -158,7 +158,7 @@ void cycle()
         break;
     case 0xC000:
         srand(time(NULL));
-        chip.V[chip.opcode & 0x0F00] = (rand() % 0x0100) & (chip.opcode & 0x00FF);
+        chip.V[(chip.opcode & 0x0F00) >> 8] = (rand() % 0x0100) & (chip.opcode & 0x00FF);
         break;
     case 0xE000:
         switch (chip.opcode & 0x00FF)
@@ -206,7 +206,7 @@ void cycle()
                 //chip.PC += 2;
                 break;
             case 0x0029:
-                chip.index = chip.V[(chip.opcode & 0x0F00) >> 8];
+                chip.index = FONT_LOAD + (5 * chip.V[(chip.opcode & 0x0F00) >> 8]);
                 //chip.PC += 2;
                 break;
             case 0x0055:
@@ -420,10 +420,10 @@ void getInput(SDL_Event e, bool& running)
             {
                 if(e.key.keysym.sym == KEYMAP[i])
                     chip.keyboard[i] = 1;
-                else if(e.key.keysym.sym == SDLK_ESCAPE){
-                    running = false;
-                    break;
-                }
+            }
+            if(e.key.keysym.sym == SDLK_ESCAPE){
+                running = false;
+                break;
             }
         }
         else if(e.type == SDL_KEYUP)
