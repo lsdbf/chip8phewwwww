@@ -420,10 +420,10 @@ void getInput(SDL_Event e, bool& running)
             {
                 if(e.key.keysym.sym == KEYMAP[i])
                     chip.keyboard[i] = 1;
-                else if(e.key.keysym.sym == SDLK_ESCAPE){
-                    running = false;
-                    break;
-                }
+            }
+            if(e.key.keysym.sym == SDLK_ESCAPE){
+                running = false;
+                break;
             }
         }
         else if(e.type == SDL_KEYUP)
